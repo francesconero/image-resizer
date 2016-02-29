@@ -59,7 +59,7 @@ function createApplicationAt(dir){
       'node': pkg.engines.node
     },
     dependencies: {
-      'image-resizer': '~' + pkg.version,
+      'image-resizer': 'francesconero/image-resizer',
       'express': pkg.dependencies.express,
       'lodash': pkg.dependencies.lodash,
       'chalk': pkg.dependencies.chalk,
