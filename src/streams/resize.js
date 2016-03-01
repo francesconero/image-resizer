@@ -131,8 +131,8 @@ module.exports = function () {
           wd = image.modifiers.width || image.modifiers.height;
           ht = image.modifiers.height || image.modifiers.width;
 
-          d = dims.gravity(
-            image.modifiers.gravity,
+          d = dims.xy(
+            image.modifiers,
             size.width,
             size.height,
             wd,
