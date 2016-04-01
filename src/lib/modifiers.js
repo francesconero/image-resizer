@@ -100,7 +100,7 @@ modifierMap = [
     key: 'c',
     desc: 'crop',
     type: 'string',
-    values: ['fit','fill','cut','scale','pad'],
+    values: ['fit','fill','fillexpand','cut','scale','pad'],
     default: 'fit'
   },
   {
@@ -212,7 +212,10 @@ function parseModifiers(mods, modArr) {
         break;
       case 'crop':
         value = string.sanitize(value, 'alpha');
+        console.log(value);
+        console.log(mod.values);
         if (inArray(value.toLowerCase(), mod.values)){
+          console.log('present');
           mods.crop = value.toLowerCase();
         }
         mods.hasModStr = true;

@@ -84,6 +84,46 @@ function xy(modifiers, width, height, cropWidth, cropHeight){
 }
 exports.xy = xy;
 
+exports.cropFillExpand = function(modifiers, size){
+  var wd, ht,
+    newWd, newHt,
+    cropWidth, cropHeight,
+    crop;
+
+  if (modifiers.width === null){
+    modifiers.width = modifiers.height;
+  }
+  if (modifiers.height === null){
+    modifiers.height = modifiers.width;
+  }
+
+  cropWidth = modifiers.width;
+  cropHeight = modifiers.height;
+
+  wd = newWd = cropWidth;
+  ht = newHt = Math.round(newWd*(size.height/size.width));
+
+  if(newHt < cropHeight) {
+    ht = newHt = cropHeight;
+    wd = newWd = Math.round(newHt*(size.width/size.height));
+  }
+
+  // get the crop X/Y as defined by the gravity or x/y modifiers
+  crop = xy(modifiers, newWd, newHt, cropWidth, cropHeight);
+
+  return {
+    resize: {
+      width: wd,
+      height: ht
+    },
+    crop: {
+      width: cropWidth,
+      height: cropHeight,
+      x: crop.x,
+      y: crop.y
+    }
+  };
+};
 
 exports.cropFill = function(modifiers, size){
   var wd, ht,
