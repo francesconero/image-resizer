@@ -26,6 +26,12 @@ module.exports = function () {
       return callback(null, image);
     }
 
+    // let this pass through if we have a gif
+    if (image.unchangedOutputFormat === 'gif'){
+      image.log.log('resize: gif no optimize');
+      return callback(null, image);
+    }
+
     image.log.time('resize');
 
     var resizeResponse = function (err, buffer) {
