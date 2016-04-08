@@ -212,10 +212,7 @@ function parseModifiers(mods, modArr) {
         break;
       case 'crop':
         value = string.sanitize(value, 'alpha');
-        console.log(value);
-        console.log(mod.values);
         if (inArray(value.toLowerCase(), mod.values)){
-          console.log('present');
           mods.crop = value.toLowerCase();
         }
         mods.hasModStr = true;
