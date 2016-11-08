@@ -81,6 +81,8 @@ Image.prototype.parseImage = function(request){
       this.outputFormat = outputFormat;
       fileStr = exts.join('.');
     }
+  } else if(exts.length === 2) {
+    this.unchangedOutputFormat = exts[exts.length - 1];
   }
 
   this.image  = fileStr;
