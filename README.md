@@ -18,14 +18,14 @@ When a new image size is requested of `image-resizer` via the CDN, it will pull 
 
 ## Getting Started
 
-    $ npm install -g image-resizer gulp
+    $ npm install -g tripviss/image-resizer gulp
     $ mkdir my_fancy_image_server
     $ cd my_fancy_image_server
     $ image-resizer new
     $ npm install
     $ gulp watch
 
-This will create a new directory structure including all the necessary files needed to run `image-resizer`. The money file is `index.js` which is loads the express configuration and routes.
+This will create a new directory structure including all the necessary files needed to run `image-resizer`. The money file is `server.js` which loads the express configuration and routes.
 
 `image-resizer` can also simply be added as a node_module to any project and the streams interfaces used standalone. `./test.js` has a good example of how the app should work running behind Express.
 
@@ -34,18 +34,18 @@ There is a [RubyGem](https://github.com/jimmynicol/ir-helper) of helpers (both R
 
 ## Architecture
 
-The new refactored codebase now takes advantage of node streams. The [previous iteration](https://github.com/jimmynicol/image-resizer/tree/v0.0.1) was heavily based on promises but still ended up with spaghetti code to some extent.
+The codebase takes advantage of node streams.
 
-Inspired a lot by [Gulp](http://gulpjs.com) `image-resizer` passes around an Image object between each of the streams that contains information about the request and the image data (either as a buffer or stream).
+Inspired a lot by [Gulp](http://gulpjs.com), `image-resizer` passes around an Image object between each of the streams that contains information about the request and the image data (either as a buffer or stream).
 
-Images are also no longer modified and sent back to s3 for storage. The full power of the CDN is used for storing the modified images. This greatly improves performance both on the server side and client side. Google PageSpeed did not like the 302 redirects returned by an `image-resizer` instance.
+Modified images are not sent back to s3 for storage. Instead, use a CDN to cache the modified images. This greatly improves performance both on the server side and client side. Google PageSpeed does not like 302 redirects.
 
-Also removing the need to push data to s3 helps the server processing as this can be a wildly inconsistent action.
+Removing the need to push data to s3 also helps server response times, as the network performance can be wildly inconsistent.
 
 
 ## Plugins
 
-`image-resizer` now supports a range of custom plugins for both image sources and filters. As mentioned above a number of sources are supported out of the box but each of these can be over written as needed.
+`image-resizer` supports a range of custom plugins for both image sources and filters. As mentioned above a number of sources are supported out of the box but each of these can be over written as needed.
 
 The directory structure created via `$ image-resizer new` will include a plugins directory where the initialization script will pick up any scripts and insert them into the application.
 
@@ -222,19 +222,31 @@ translates to:
 
 It is possible to bring images in from external sources and store them behind your own CDN. This is very useful when it comes to things like Facebook or Vimeo which have very inconsistent load times. Each external source can still enable any of the modification parameters list above.
 
-In addition to the provided external sources, you can easily add your own basic external sources using `EXTERNAL_SOURCE_*` environment variables. For example, to add Wikipedia as an external source, set the following environment variable:
+In addition to the provided external sources, you can easily add your own external sources using `EXTERNAL_SOURCE_*` environment variables. For example, to add Wikipedia as an external source, set the following environment variable:
 
 ```
 EXTERNAL_SOURCE_WIKIPEDIA: 'https://upload.wikimedia.org/wikipedia/'
 ```
 
-Then you can request images beginning with the provided path using the `ewikipedia` modifier, eg:
+Then you can request images beginning with the provided path prefix using the `ewikipedia` modifier, eg:
 
     http://my.cdn.com/ewikipedia/en/7/70/Example.png
-    
+
 translates to:
 
     https://upload.wikimedia.org/wikipedia/en/7/70/Example.png
+
+You may also use [Regular Expressions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp). Just use the same syntax as regex literals in JS. For example, to match any URLs matching `*.googleusercontent.com`:
+
+```
+EXTERNAL_SOURCE_GOOGLEUSERCONTENT=/^https?:\/\/.+\.googleusercontent\.com\//i
+```
+
+Or to simply allow any URL (below is a really naive regex for matching URLs):
+
+```
+EXTERNAL_SOURCE_URL=/^https?:\/\//i
+```
 
 It is worth noting that Twitter requires a full set of credentials as you need to poll their API in order to return profile pics.
 
@@ -274,21 +286,16 @@ It is also of note that due to some issues with GCC, `sharp` can not be used on 
 
 ## Local development
 
-To run `image-resizer` locally, the following will work for an OSX environment assuming you have node/npm installed - [NVM is useful](https://github.com/creationix/nvm).
+To run `image-resizer` locally:
 
 ```bash
-npm install gulp -g
-./node_modules/image_resizer/node_modules/sharp/preinstall.sh
+npm install -g gulp
 npm install
 gulp watch
 ```
 
+See [install docs for sharp](http://sharp.dimens.io/en/stable/install/) if you get errors related to sharp / libvips.
+
 The gulp setup includes nodemon which runs the app nicely, restarting between code changes. `PORT` can be set in the `.env` file if you need to run on a port other than 3001.
 
 Tests can be run with: `gulp test`
-
-
-## Early promise-based version of codebase
-
-*NOTE:* Completely refactored and improved, if you are looking for the older version it is tagged as [v0.0.1](https://github.com/jimmynicol/image-resizer/tree/v0.0.1).
-

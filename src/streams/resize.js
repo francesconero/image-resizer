@@ -49,12 +49,8 @@ module.exports = function () {
 
     var r = sharp(image.contents);
 
-    // never enlarge an image beyond its original size, unless we're padding
-    // the image, as even though this can count as an "enlargement" the padded
-    // result can be reasonably generated in most cases.
-    if (image.modifiers.action !== 'crop' && image.modifiers.crop !== 'pad') {
-      r.withoutEnlargement();
-    }
+    // never enlarge an image beyond its original size
+    r.withoutEnlargement();
 
     // if allowed auto rotate images, very helpful for photos off of an iphone
     // which are landscape by default and the metadata tells them what to show.
@@ -95,12 +91,12 @@ module.exports = function () {
         r.resize(
             d.resize.width,
             d.resize.height
-          ).extract(
-            d.crop.y,
-            d.crop.x,
-            d.crop.width,
-            d.crop.height
-          );
+          ).extract({
+            left: d.crop.x,
+            top: d.crop.y,
+            width: d.crop.width,
+            height: d.crop.height
+          });
 
         r.toBuffer(resizeResponse);
       });
@@ -126,12 +122,12 @@ module.exports = function () {
           r.resize(
               d.resize.width,
               d.resize.height
-            ).extract(
-              d.crop.y,
-              d.crop.x,
-              d.crop.width,
-              d.crop.height
-            );
+            ).extract({
+              left: d.crop.x,
+              top: d.crop.y,
+              width: d.crop.width,
+              height: d.crop.height
+            });
           break;
         case 'fillexpand':
           d = dims.cropFillExpand(image.modifiers, size);
@@ -157,11 +153,16 @@ module.exports = function () {
             wd,
             ht
           );
-          r.extract(d.y, d.x, wd, ht);
+          r.extract({
+            left: d.x,
+            top: d.y,
+            width: wd,
+            height: ht
+          });
           break;
         case 'scale':
-          // TODO: deal with scale
           r.resize(image.modifiers.width, image.modifiers.height);
+          r.ignoreAspectRatio();
           break;
         case 'pad':
           r.resize(

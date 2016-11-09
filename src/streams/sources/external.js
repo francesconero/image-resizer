@@ -2,8 +2,9 @@
 
 'use strict';
 
-var stream, util, request;
+var string, stream, util, request;
 
+string  = require('../../utils/string');
 stream  = require('stream');
 util    = require('util');
 request = require('request');
@@ -15,6 +16,8 @@ function contentLength(bufs){
 }
 
 function External(image, key, prefix){
+  var regexMatch;
+
   /* jshint validthis:true */
   if (!(this instanceof External)){
     return new External(image, key, prefix);
@@ -23,7 +26,11 @@ function External(image, key, prefix){
   this.image = image;
   this.ended = false;
   this.key = key;
-  this.prefix = prefix;
+  if ((regexMatch = prefix.match(string.REGEX_LITERAL_REGEX)) !== null) {
+    this.pattern = new RegExp(regexMatch[1], regexMatch[2]);
+  } else {
+    this.prefix = prefix;
+  }
 }
 
 util.inherits(External, stream.Readable);
@@ -43,9 +50,20 @@ External.prototype._read = function(){
     return this.push(null);
   }
 
-  url = this.prefix + '/' + this.image.path;
+  if (this.pattern) {
+    url = this.image.path;
 
-  this.image.log.time(this.key);
+    if (!this.pattern.test(url)) {
+      this.image.error = new Error('URL "' + url + '" does not match pattern');
+      this.ended = true;
+      this.push(this.image);
+      return this.push(null);
+    }
+  } else {
+    url = this.prefix + '/' + this.image.path;
+  }
+
+  this.image.log.time('source:' + this.key);
 
   imgStream = request.get(url);
   imgStream.on('data', function(d){ bufs.push(d); });
@@ -58,7 +76,7 @@ External.prototype._read = function(){
     }
   });
   imgStream.on('end', function(){
-    _this.image.log.timeEnd(_this.key);
+    _this.image.log.timeEnd('source:' + _this.key);
     if(_this.image.isError()) {
       _this.image.error.message += Buffer.concat(bufs);
     } else {

@@ -1,6 +1,6 @@
 'use strict';
 
-var _, Logger, env, modifiers, stream, util, imgType;
+var _, Logger, env, modifiers, stream, util, imageType;
 
 _         = require('lodash');
 Logger    = require('./utils/logger');
@@ -8,7 +8,7 @@ env       = require('./config/environment_vars');
 modifiers = require('./lib/modifiers');
 stream    = require('stream');
 util      = require('util');
-imgType   = require('image-type');
+imageType = require('image-type');
 
 
 // Simple stream to represent an error at an early stage, for instance a
@@ -54,7 +54,7 @@ function Image(request){
   this.log = new Logger();
 }
 
-Image.validInputFormats  = ['jpeg', 'jpg', 'gif', 'png', 'webp'];
+Image.validInputFormats  = ['jpeg', 'jpg', 'png', 'webp', 'tiff', 'tif', 'gif'];
 Image.validOutputFormats = ['jpeg', 'png', 'webp'];
 
 // Determine the name and format of the requested image
@@ -147,7 +147,6 @@ Image.prototype.getFile = function(){
 
   // if all is well find the appropriate stream
   else {
-    this.log.log('new stream created!');
     Stream = sources[streamType];
   }
 
@@ -169,19 +168,26 @@ Image.prototype.sizeSaving = function(){
 
 
 Image.prototype.isFormatValid = function () {
+  if (!this.format) {
+    this.error = new Error('Input format not recognized');
+
+    return;
+  }
+
   if (Image.validInputFormats.indexOf(this.format) === -1) {
-    this.error = new Error(
-      'The listed format (' + this.format + ') is not valid.'
-    );
+    this.error = new Error('Unsupported input format "' + this.format + '"');
+  } else if (Image.validOutputFormats.indexOf(this.format) === -1 && !this.outputFormat) {
+    this.error = new Error('Unsupported output format "' + this.format + '"');
   }
 };
 
-// Setter/getter for image format that normalizes jpeg formats
+// Setter/getter for image format that normalizes formats
 Object.defineProperty(Image.prototype, 'format', {
   get: function () { return this._format; },
   set: function (value) {
     this._format = value.toLowerCase();
     if (this._format === 'jpg') { this._format = 'jpeg'; }
+    else if (this._format === 'tif') { this._format = 'tiff'; }
   }
 });
 
@@ -190,10 +196,15 @@ Object.defineProperty(Image.prototype, 'format', {
 Object.defineProperty(Image.prototype, 'contents', {
   get: function () { return this._contents; },
   set: function (data) {
+    var imgType;
+
     this._contents = data;
 
     if (this.isBuffer()) {
-      this.format = imgType(data).ext;
+      imgType = imageType(data);
+      if (imgType) {
+        this.format = imgType.ext;
+      }
       this.isFormatValid();
     }
   }
