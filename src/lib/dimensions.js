@@ -100,6 +100,19 @@ exports.cropFillExpand = function(modifiers, size){
   cropWidth = modifiers.width;
   cropHeight = modifiers.height;
 
+  if(cropWidth > size.width) {
+    cropHeight *= size.width / cropWidth;
+    cropWidth = size.width;
+  }
+
+  if(cropHeight > size.height) {
+    cropWidth *= size.height / cropHeight;
+    cropHeight = size.height;
+  }
+
+  cropWidth = Math.floor(cropWidth);
+  cropHeight = Math.floor(cropHeight);
+
   wd = newWd = cropWidth;
   ht = newHt = Math.round(newWd*(size.height/size.width));
 
@@ -108,8 +121,25 @@ exports.cropFillExpand = function(modifiers, size){
     wd = newWd = Math.round(newHt*(size.width/size.height));
   }
 
+  var clonedModifiers = JSON.parse(JSON.stringify(modifiers));
+
+  // transform x/y crop position from focus on original image to offset on resized image
+  if(clonedModifiers.x) {
+    clonedModifiers.x = clonedModifiers.x * (newWd / size.width);
+    // subtract half width
+    clonedModifiers.x -= cropWidth / 2;
+    clonedModifiers.x = Math.abs(Math.round(clonedModifiers.x));
+  }
+
+  if(clonedModifiers.y) {
+    clonedModifiers.y = clonedModifiers.y * (newHt / size.height);
+    // subtract half height
+    clonedModifiers.y -= cropHeight / 2;
+    clonedModifiers.y = Math.abs(Math.round(clonedModifiers.y));
+  }
+
   // get the crop X/Y as defined by the gravity or x/y modifiers
-  crop = xy(modifiers, newWd, newHt, cropWidth, cropHeight);
+  crop = xy(clonedModifiers, newWd, newHt, cropWidth, cropHeight);
 
   return {
     resize: {

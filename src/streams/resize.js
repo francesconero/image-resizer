@@ -132,7 +132,8 @@ module.exports = function () {
         case 'fillexpand':
           d = dims.cropFillExpand(image.modifiers, size);
 
-          r.resize(
+          try {
+            r.resize(
               d.resize.width,
               d.resize.height
             ).extract({
@@ -140,7 +141,11 @@ module.exports = function () {
               top: d.crop.y,
               width: d.crop.width,
               height: d.crop.height
-          });
+            });
+          } catch(e) {
+            console.error(e);
+            throw e;
+          }
           break;
         case 'cut':
           wd = image.modifiers.width || image.modifiers.height;
