@@ -147,6 +147,24 @@ module.exports = function () {
             throw e;
           }
           break;
+        case 'fillexpandzoom':
+          d = dims.cropFillExpandZoom(image.modifiers, size);
+
+          try {
+            r.resize(
+              d.resize.width,
+              d.resize.height
+            ).extract({
+              left: d.crop.x,
+              top: d.crop.y,
+              width: d.crop.width,
+              height: d.crop.height
+            });
+          } catch(e) {
+            console.error(e);
+            throw e;
+          }
+          break;
         case 'cut':
           wd = image.modifiers.width || image.modifiers.height;
           ht = image.modifiers.height || image.modifiers.width;

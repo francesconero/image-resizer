@@ -100,7 +100,7 @@ modifierMap = [
     key: 'c',
     desc: 'crop',
     type: 'string',
-    values: ['fit','fill','fillexpand','cut','scale','pad'],
+    values: ['fit','fill','fillexpand','fillexpandzoom','cut','scale','pad'],
     default: 'fit'
   },
   {
