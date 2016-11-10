@@ -24,7 +24,7 @@ module.exports = function(){
 
     // let this pass through if we have a gif
     if (image.unchangedOutputFormat === 'gif'){
-      image.log.log('filter: gif no optimize');
+      image.log.log('filter: gif no filter');
       return callback(null, image);
     }
 
