@@ -132,10 +132,10 @@ exports.cropFillExpandZoom = function(modifiers, size){
     crop;
 
   if (modifiers.width === null){
-    modifiers.width = modifiers.height;
+    modifiers.width = Math.round(size.width * (modifiers.height/size.height));
   }
   if (modifiers.height === null){
-    modifiers.height = modifiers.width;
+    modifiers.height = Math.round(size.height * (modifiers.width/size.width));
   }
 
   cropWidth = modifiers.width;
