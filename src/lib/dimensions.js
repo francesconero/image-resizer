@@ -109,17 +109,27 @@ exports.cropFill = function(modifiers, size){
     cropHeight = modifiers.height * scale;
     newWd = size.width;
     newHt = size.height;
+    /* Calculate focus */
+    if(clonedModifiers.x) {
+      clonedModifiers.x -= cropWidth/2;
+    }
+    if(clonedModifiers.y) {
+      clonedModifiers.y -= cropHeight/2;
+    }
   } else {
     /* Image too big, scale it down */
     cropWidth = modifiers.width;
     cropHeight = modifiers.height;
     newWd = size.width / scale;
     newHt = size.height / scale;
+    /* Calculate focus */
     if(clonedModifiers.x) {
       clonedModifiers.x /= scale;
+      clonedModifiers.x -= cropWidth/2;
     }
     if(clonedModifiers.y) {
       clonedModifiers.y /= scale;
+      clonedModifiers.y -= cropHeight/2;
     }
   }
 
