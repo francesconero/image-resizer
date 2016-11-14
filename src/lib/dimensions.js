@@ -91,6 +91,7 @@ exports.cropFill = function(modifiers, size){
       cropWidth, cropHeight,
       crop;
 
+  /* If only one dimension cropped, assume square crop */
   if (modifiers.width === null){
     modifiers.width = modifiers.height;
   }
@@ -98,19 +99,22 @@ exports.cropFill = function(modifiers, size){
     modifiers.height = modifiers.width;
   }
 
-  if (modifiers.width > size.width && modifiers.height <= size.height) {
+  /* If crop exceeds image size, scale to fit */
+  cropWidth = modifiers.width;
+  cropHeight = modifiers.height;
+
+  if (modifiers.width > size.width) {
     cropWidth = size.width;
-    cropHeight = modifiers.height;
-  } else if (modifiers.width <= size.width && modifiers.height > size.height) {
-    cropWidth = modifiers.width;
-    cropHeight = size.height;
-  } else if (modifiers.width > size.width && modifiers.height > size.height) {
-    cropWidth = size.width;
-    cropHeight = size.height;
-  } else {
-    cropWidth = modifiers.width;
-    cropHeight = modifiers.height;
+    cropHeight = modifiers.height * (size.width/modifiers.width);
   }
+
+  if (cropHeight > size.height) {
+    cropWidth *= size.height/cropHeight;
+    cropHeight = size.height;
+  }
+
+  cropWidth = Math.round(cropWidth);
+  cropHeight = Math.round(cropHeight);
 
   wd = newWd = cropWidth;
   ht = newHt = Math.round(newWd*(size.height/size.width));
