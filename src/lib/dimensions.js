@@ -86,8 +86,7 @@ exports.xy = xy;
 
 
 exports.cropFill = function(modifiers, size){
-  var wd, ht,
-      newWd, newHt,
+  var newWd, newHt,
       cropWidth, cropHeight,
       crop;
 
@@ -99,44 +98,44 @@ exports.cropFill = function(modifiers, size){
     modifiers.height = modifiers.width;
   }
 
-  /* If crop exceeds image size, scale to fit */
-  cropWidth = modifiers.width;
-  cropHeight = modifiers.height;
+  /* I don't know if it's safe to modify the modifiers, so clone it */
+  var clonedModifiers = JSON.parse(JSON.stringify(modifiers));
 
-  if (modifiers.width > size.width) {
-    cropWidth = size.width;
-    cropHeight = modifiers.height * (size.width/modifiers.width);
-  }
-
-  if (cropHeight > size.height) {
-    cropWidth *= size.height/cropHeight;
-    cropHeight = size.height;
-  }
-
-  cropWidth = Math.round(cropWidth);
-  cropHeight = Math.round(cropHeight);
-
-  wd = newWd = cropWidth;
-  ht = newHt = Math.round(newWd*(size.height/size.width));
-
-  if(newHt < cropHeight) {
-    ht = newHt = cropHeight;
-    wd = newWd = Math.round(newHt*(size.width/size.height));
+  /* Fit crop to image */
+  var scale = Math.min(size.height/modifiers.height, size.width/modifiers.width);
+  if(scale < 1) {
+    /* Crop too big, scale it down */
+    cropWidth = modifiers.width * scale;
+    cropHeight = modifiers.height * scale;
+    newWd = size.width;
+    newHt = size.height;
+  } else {
+    /* Image too big, scale it down */
+    cropWidth = modifiers.width;
+    cropHeight = modifiers.height;
+    newWd = size.width / scale;
+    newHt = size.height / scale;
+    if(clonedModifiers.x) {
+      clonedModifiers.x /= scale;
+    }
+    if(clonedModifiers.y) {
+      clonedModifiers.y /= scale;
+    }
   }
 
   // get the crop X/Y as defined by the gravity or x/y modifiers
-  crop = xy(modifiers, newWd, newHt, cropWidth, cropHeight);
+  crop = xy(clonedModifiers, newWd, newHt, cropWidth, cropHeight);
 
   return {
     resize: {
-      width: wd,
-      height: ht
+      width: Math.round(newWd),
+      height: Math.round(newHt)
     },
     crop: {
-      width: cropWidth,
-      height: cropHeight,
-      x: crop.x,
-      y: crop.y
+      width: Math.round(cropWidth),
+      height: Math.round(cropHeight),
+      x: Math.round(crop.x),
+      y: Math.round(crop.y)
     }
   };
 };
