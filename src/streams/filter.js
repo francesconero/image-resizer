@@ -22,6 +22,12 @@ module.exports = function(){
       return callback(null, image);
     }
 
+    // let this pass through if we have a gif
+    if (image.unchangedOutputFormat === 'gif'){
+      image.log.log('filter: gif no filter');
+      return callback(null, image);
+    }
+
     var filter = image.modifiers.filter;
 
     // don't attempt to process a filter if no appropriate modifier is set
