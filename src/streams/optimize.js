@@ -21,13 +21,6 @@ module.exports = function () {
     }
 
     image.log.time('optimize-sharp:' + (image.outputFormat || image.format));
-    // let this pass through if we have a gif
-    if (image.unchangedOutputFormat === 'gif'){
-      image.log.log('optimize: gif no optimize');
-      return callback(null, image);
-    }
-
-    image.log.time('optimize-sharp:' + image.format);
 
     var r = sharp(image.contents);
 

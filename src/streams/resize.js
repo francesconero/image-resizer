@@ -26,12 +26,6 @@ module.exports = function () {
       return callback(null, image);
     }
 
-    // let this pass through if we have a gif
-    if (image.unchangedOutputFormat === 'gif'){
-      image.log.log('resize: gif no optimize');
-      return callback(null, image);
-    }
-
     image.log.time('resize');
 
     var resizeResponse = function (err, buffer) {
@@ -129,48 +123,12 @@ module.exports = function () {
               height: d.crop.height
             });
           break;
-        case 'fillexpand':
-          d = dims.cropFillExpand(image.modifiers, size);
-
-          try {
-            r.resize(
-              d.resize.width,
-              d.resize.height
-            ).extract({
-              left: d.crop.x,
-              top: d.crop.y,
-              width: d.crop.width,
-              height: d.crop.height
-            });
-          } catch(e) {
-            console.error(e);
-            throw e;
-          }
-          break;
-        case 'fillexpandzoom':
-          d = dims.cropFillExpandZoom(image.modifiers, size);
-
-          try {
-            r.resize(
-              d.resize.width,
-              d.resize.height
-            ).extract({
-              left: d.crop.x,
-              top: d.crop.y,
-              width: d.crop.width,
-              height: d.crop.height
-            });
-          } catch(e) {
-            console.error(e);
-            throw e;
-          }
-          break;
         case 'cut':
           wd = image.modifiers.width || image.modifiers.height;
           ht = image.modifiers.height || image.modifiers.width;
 
-          d = dims.xy(
-            image.modifiers,
+          d = dims.gravity(
+            image.modifiers.gravity,
             size.width,
             size.height,
             wd,

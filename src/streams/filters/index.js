@@ -5,8 +5,8 @@ var path, fs, cwd, dir, files, modules, pluginDir;
 path      = require('path');
 fs        = require('fs');
 cwd       = process.cwd();
-dir       = path.parse(__dirname).base;
-pluginDir = path.join(cwd, 'plugins', dir);
+dir       = __dirname.split('/').slice(-1)[0];
+pluginDir = [cwd, 'plugins', dir].join('/');
 modules   = {};
 
 

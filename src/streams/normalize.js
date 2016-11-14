@@ -26,8 +26,8 @@ module.exports = function () {
         normalizedFormat = 'png';
         break;
       case 'gif':
-        image.log.log('normalize: gif no normalize');
-        return callback(null, image);
+        normalizedFormat = 'png';
+        break;
       default:
         normalizedFormat = null;
         break;

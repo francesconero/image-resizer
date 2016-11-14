@@ -55,7 +55,7 @@ function Image(request){
 }
 
 Image.validInputFormats  = ['jpeg', 'jpg', 'png', 'webp', 'tiff', 'tif', 'gif'];
-Image.validOutputFormats = ['jpeg', 'png', 'webp', 'gif'];
+Image.validOutputFormats = ['jpeg', 'png', 'webp'];
 
 // Determine the name and format of the requested image
 Image.prototype.parseImage = function(request){
@@ -81,8 +81,6 @@ Image.prototype.parseImage = function(request){
       this.outputFormat = outputFormat;
       fileStr = exts.join('.');
     }
-  } else if(exts.length === 2) {
-    this.unchangedOutputFormat = exts[exts.length - 1];
   }
 
   this.image  = fileStr;
